@@ -13,7 +13,6 @@ const pool = new Pool({
 });
 
 app.use(cors());
-app.options("*", cors());
 app.use(express.json());
 
 async function createUsersTable() {
