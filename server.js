@@ -1,59 +1,66 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
-const sqlite3 = require("sqlite3").verbose();
+const { Pool } = require("pg");
 const cors = require("cors");
 
 const app = express();
-const db = new sqlite3.Database("users.db");
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
 app.use(cors());
 app.options("*", cors());
 app.use(express.json());
 
-db.run(`
-CREATE TABLE IF NOT EXISTS users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  username TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL
-)
-`);
+async function createUsersTable() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL
+      )
+    `);
+    console.log("Users table ready");
+  } catch (err) {
+    console.error("Error creating users table:", err);
+  }
+}
+
+createUsersTable();
 
 app.post("/register", async function (req, res) {
-    const userName = req.body.username;
-    const passWord = req.body.password;
+  const userName = req.body.username;
+  const passWord = req.body.password;
 
-    if (!userName || !passWord) {
-        res.send("Username and password are required");
-        return;
-    }    const checkIfUsernameTakenQuery = "SELECT * FROM users WHERE username = ?";
+  if (!userName || !passWord) {
+    res.send("Username and password are required");
+    return;
+  }
 
-    db.get(checkIfUsernameTakenQuery, [userName], async function (err, row) {
-        if (err) {
-            res.send("Error checking username");
-            return;
-        }
+  try {
+    const checkIfUsernameTakenQuery = "SELECT * FROM users WHERE username = $1";
+    const existingUser = await pool.query(checkIfUsernameTakenQuery, [userName]);
 
-        if (row) {
-            res.send("Username already taken");
-            return;
-        }
+    if (existingUser.rows.length > 0) {
+      res.send("Username already taken");
+      return;
+    }
 
-        try {
-            const hashedPassword = await bcrypt.hash(passWord, 10);
-            const createAccountQuery = "INSERT INTO users (username, password) VALUES (?, ?)";
+    const hashedPassword = await bcrypt.hash(passWord, 10);
 
-            db.run(createAccountQuery, [userName, hashedPassword], function (err) {
-                if (err) {
-                    res.send("Error creating account");
-                    return;
-                }
+    const createAccountQuery = "INSERT INTO users (username, password) VALUES ($1, $2)";
+    await pool.query(createAccountQuery, [userName, hashedPassword]);
 
-                res.send("User created successfully");
-            });
-        } catch (error) {
-            res.send("Error hashing password");
-                  }
-    });
+    res.send("User created successfully");
+  } catch (error) {
+    console.error(error);
+    res.send("Error creating account");
+  }
 });
 
 const port = process.env.PORT || 3000;
