@@ -62,6 +62,37 @@ app.post("/register", async function (req, res) {
   }
 });
 
+app.get("/login", async function(req, res) {
+  const userName = req.body.username;
+  const passWord = req.body.password;
+
+  try {
+    const findUsername = "SELECT * FROM USERS WHERE username = $1";
+    const findUsernameQuery = await pool.query(findUsername, [userName]);
+
+    if (findUsernameQuery.rows.length > 0){
+      
+      const user = findUsernameQuery.rows[0];
+      const isMatch = await bcrypt.compare(password, user.password);
+      
+      if (isMatch){
+        res.send("Login successful");
+      }
+      else{
+        res.send("Incorrect username or password");
+        return;
+      }
+
+    else{
+      res.send("Incorrect username or password");
+      return;
+
+  catch (error){
+    console.error(error);
+    res.send("Error logging in");
+  }
+}
+
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
