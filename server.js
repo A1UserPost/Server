@@ -94,7 +94,7 @@ app.get("/login", async function(req, res) {
     console.error(error);
     res.send("Error logging in");
   }
-}
+});
 
 const port = process.env.PORT || 3000;
 
