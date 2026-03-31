@@ -67,7 +67,7 @@ app.post("/login", async function(req, res) {
   const passWord = req.query.password;
 
   try {
-    const findUsername = "SELECT * FROM USERS WHERE username = $1";
+    const findUsername = "SELECT * FROM users WHERE username = $1";
     const findUsernameQuery = await pool.query(findUsername, [userName]);
 
     if (findUsernameQuery.rows.length > 0){
