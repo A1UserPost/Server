@@ -62,7 +62,7 @@ app.post("/register", async function (req, res) {
   }
 });
 
-app.get("/login", async function(req, res) {
+app.post("/login", async function(req, res) {
   const userName = req.query.username;
   const passWord = req.query.password;
 
