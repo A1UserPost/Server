@@ -82,10 +82,13 @@ app.get("/login", async function(req, res) {
         res.send("Incorrect username or password");
         return;
       }
+    }
 
     else{
       res.send("Incorrect username or password");
       return;
+    }
+  }
 
   catch (error){
     console.error(error);
