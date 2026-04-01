@@ -22,6 +22,7 @@ async function createUsersTable() {
         id SERIAL PRIMARY KEY,
         username TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL
+        email TEXT UNIQUE NOT NULL
       )
     `);
     console.log("Users table ready");
@@ -35,9 +36,11 @@ createUsersTable();
 app.post("/register", async function (req, res) {
   const userName = req.body.username;
   const passWord = req.body.password;
+  const confirmpassWord = req.body.confirmPassword;
+  const Email = req.body.email;
 
-  if (!userName || !passWord) {
-    res.send("Username and password are required");
+  if (!userName || !passWord || !Email || !confirmpassWord) {
+    res.send("Username, password, and email are required");
     return;
   }
 
@@ -45,15 +48,23 @@ app.post("/register", async function (req, res) {
     const checkIfUsernameTakenQuery = "SELECT * FROM users WHERE username = $1";
     const existingUser = await pool.query(checkIfUsernameTakenQuery, [userName]);
 
-    if (existingUser.rows.length > 0) {
-      res.send("Username already taken");
+    const checkIfEmailTakenQuery = "SELECT * FROM users WHERE email = $1;
+    const existingEmail = await pool.query(checkIfEmailTakenQuery, [Email]);
+
+    if (existingUser.rows.length > 0 || existingEmail.rows.length > 0) {
+      res.send("Username or email already taken");
+      return;
+    }
+
+    if (passWord !== confirmpassWord){
+      res.send("Password must match confirmation password");
       return;
     }
 
     const hashedPassword = await bcrypt.hash(passWord, 10);
 
-    const createAccountQuery = "INSERT INTO users (username, password) VALUES ($1, $2)";
-    await pool.query(createAccountQuery, [userName, hashedPassword]);
+    const createAccountQuery = "INSERT INTO users (username, password, email) VALUES ($1, $2, $3)";
+    await pool.query(createAccountQuery, [userName, hashedPassword, Email]);
 
     res.send("User created successfully");
   } catch (error) {
