@@ -63,8 +63,8 @@ app.post("/register", async function (req, res) {
 });
 
 app.post("/login", async function(req, res) {
-  const userName = req.query.username;
-  const passWord = req.query.password;
+  const userName = req.body.username;
+  const passWord = req.body.password;
 
   try {
     const findUsername = "SELECT * FROM users WHERE username = $1";
