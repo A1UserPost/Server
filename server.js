@@ -48,7 +48,7 @@ app.post("/register", async function (req, res) {
     const checkIfUsernameTakenQuery = "SELECT * FROM users WHERE username = $1";
     const existingUser = await pool.query(checkIfUsernameTakenQuery, [userName]);
 
-    const checkIfEmailTakenQuery = "SELECT * FROM users WHERE email = $1;
+    const checkIfEmailTakenQuery = "SELECT * FROM users WHERE email = $1";
     const existingEmail = await pool.query(checkIfEmailTakenQuery, [Email]);
 
     if (existingUser.rows.length > 0 || existingEmail.rows.length > 0) {
