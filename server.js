@@ -73,7 +73,7 @@ app.post("/login", async function(req, res) {
     if (findUsernameQuery.rows.length > 0){
       
       const user = findUsernameQuery.rows[0];
-      const isMatch = await bcrypt.compare(password, user.password);
+      const isMatch = await bcrypt.compare(passWord, user.password);
       
       if (isMatch){
         res.send("Login successful");
