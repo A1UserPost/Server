@@ -12,12 +12,6 @@ const pool = new Pool({
   }
 });
 
-const pool2 = new Pool({
-  connectionString: process.env.QUESTIONS_DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
 
 app.use(cors());
 app.use(express.json());
@@ -40,7 +34,7 @@ async function createUsersTable() {
 
 async function createQuestionsTable() {
   try {
-    await pool2.query(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS questions (
         id SERIAL PRIMARY KEY,
         question TEXT NOT NULL,
