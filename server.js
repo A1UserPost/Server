@@ -37,8 +37,7 @@ async function createQuestionsTable() {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS questions (
         id SERIAL PRIMARY KEY,
-        question TEXT NOT NULL,
-        responses TEXT
+        question TEXT NOT NULL
       )
     `);
     console.log("Questions table ready");
@@ -47,8 +46,23 @@ async function createQuestionsTable() {
   }
 }
 
+async function createResponsesTable() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS responses (
+        id SERIAL PRIMARY KEY,
+        response TEXT NOT NULL
+      )
+    `);
+    console.log("Responses table ready");
+  } catch (err) {
+    console.error("Error creating responses table:", err);
+  }
+}
+
 createUsersTable();
 createQuestionsTable();
+createResponsesTable();
 
 app.post("/register", async function (req, res) {
   const userName = req.body.username;
@@ -124,10 +138,18 @@ app.post("/login", async function(req, res) {
   }
 });
 
+app.post("/question", async function(req, res) {
+  const question = req.body.question;
 
-
-
-
+  try{
+    const submitQuestionQuery = "INSERT INTO questions (question) VALUES ($1)";
+    await pool.query(submitQuestionQuery, [question]);
+  }
+  catch (error) {
+    console.error(error);
+    res.send("Error submitting question");
+  }
+});
 
 const port = process.env.PORT || 3000;
 
