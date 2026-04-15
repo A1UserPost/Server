@@ -50,9 +50,10 @@ async function createResponsesTable() {
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS responses (
-        id SERIAL PRIMARY KEY,
-        response TEXT NOT NULL
-      )
+      id SERIAL PRIMARY KEY,
+      question_id INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+      response TEXT NOT NULL
+)
     `);
     console.log("Responses table ready");
   } catch (err) {
@@ -60,9 +61,13 @@ async function createResponsesTable() {
   }
 }
 
-createUsersTable();
-createQuestionsTable();
-createResponsesTable();
+async function initializeTables(){
+  await createUsersTable();
+  await createQuestionsTable();
+  await createResponsesTable();
+}
+
+initializeTables();
 
 app.post("/register", async function (req, res) {
   const userName = req.body.username;
@@ -127,7 +132,7 @@ app.post("/login", async function(req, res) {
     }
 
     else{
-      res.send("Incorrect username or password yay");
+      res.send("Incorrect username or password");
       return;
     }
   }
