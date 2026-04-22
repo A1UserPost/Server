@@ -49,11 +49,12 @@ async function createQuestionsTable() {
 async function createResponsesTable() {
   try {
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS responses (
+    CREATE TABLE responses (
       id SERIAL PRIMARY KEY,
-      question_id INT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+      pastQuestion REFERENCES questions(question),
+      side TEXT CHECK (side IN ('A', 'B')),
       response TEXT NOT NULL
-)
+    );
     `);
     console.log("Responses table ready");
   } catch (err) {
@@ -143,16 +144,52 @@ app.post("/login", async function(req, res) {
   }
 });
 
-app.post("/question", async function(req, res) {
-  const question = req.body.question;
+app.post("/response", async function(req, res) {
+  const response = req.body.response;
+  const sideSelected = req.body.sideSelected;
+  const questionData = req.body.questionData;
 
   try{
-    const submitQuestionQuery = "INSERT INTO questions (question) VALUES ($1)";
-    await pool.query(submitQuestionQuery, [question]);
+    const submitResponseQuery = "INSERT INTO responses (pastQuestion, side, response) VALUES ($1, $2, $3)";
+    await pool.query(submitQuestionQuery, [questionData, sideSelected, response]);
   }
   catch (error) {
     console.error(error);
-    res.send("Error submitting question");
+    res.send("Error submitting response");
+  }
+});
+
+app.post("/login", async function(req, res) {
+  const userName = req.body.username;
+  const passWord = req.body.password;
+
+  try {
+    const findUsername = "SELECT * FROM users WHERE username = $1";
+    const findUsernameQuery = await pool.query(findUsername, [userName]);
+
+    if (findUsernameQuery.rows.length > 0){
+      
+      const user = findUsernameQuery.rows[0];
+      const isMatch = await bcrypt.compare(passWord, user.password);
+      
+      if (isMatch){
+        res.send("Login successful");
+      }
+      else{
+        res.send("Incorrect username or password");
+        return;
+      }
+    }
+
+    else{
+      res.send("Incorrect username or password");
+      return;
+    }
+  }
+
+  catch (error){
+    console.error(error);
+    res.send("Error logging in");
   }
 });
 
