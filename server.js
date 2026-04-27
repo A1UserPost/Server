@@ -36,8 +36,7 @@ async function createQuestionsTable() {
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS questions (
-        id SERIAL PRIMARY KEY,
-        question TEXT NOT NULL
+        question TEXT NOT NULL PRIMARY KEY
       )
     `);
     console.log("Questions table ready");
@@ -49,10 +48,13 @@ async function createQuestionsTable() {
 async function createResponsesTable() {
   try {
     await pool.query(`
+        DROP TABLE IF EXISTS responses;
+    `);
+    await pool.query(`
       CREATE TABLE responses (
         id SERIAL PRIMARY KEY,
-        pastQuestion TEXT REFERENCES questions(id),
-        side TEXT CHECK (side IN ('A', 'B')),
+        pastQuestion TEXT REFERENCES questions(question),
+        side TEXT NOT NULL,
         response TEXT NOT NULL
       )
     `);
