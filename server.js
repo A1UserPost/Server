@@ -36,7 +36,7 @@ async function createQuestionsTable() {
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS questions (
-        question TEXT NOT NULL PRIMARY KEY
+        question TEXT UNIQUE NOT NULL PRIMARY KEY
       )
     `);
     console.log("Questions table ready");
