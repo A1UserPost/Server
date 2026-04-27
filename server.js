@@ -51,7 +51,7 @@ async function createResponsesTable() {
     await pool.query(`
       CREATE TABLE responses (
         id SERIAL PRIMARY KEY,
-        pastQuestion INTEGER REFERENCES questions(id),
+        pastQuestion TEXT REFERENCES questions(id),
         side TEXT CHECK (side IN ('A', 'B')),
         response TEXT NOT NULL
       )
