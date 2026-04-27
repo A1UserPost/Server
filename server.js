@@ -49,12 +49,12 @@ async function createQuestionsTable() {
 async function createResponsesTable() {
   try {
     await pool.query(`
-    CREATE TABLE responses (
-      id SERIAL PRIMARY KEY,
-      pastQuestion REFERENCES questions(question),
-      side TEXT CHECK (side IN ('A', 'B')),
-      response TEXT NOT NULL
-    )
+      CREATE TABLE responses (
+        id SERIAL PRIMARY KEY,
+        pastQuestion INTEGER REFERENCES questions(id),
+        side TEXT CHECK (side IN ('A', 'B')),
+        response TEXT NOT NULL
+      )
     `);
     console.log("Responses table ready");
   } catch (err) {
@@ -147,11 +147,11 @@ app.post("/login", async function(req, res) {
 app.post("/response", async function(req, res) {
   const response = req.body.response;
   const sideSelected = req.body.sideSelected;
-  const questionData = req.body.questionData;
+  const questionData = req.body.questionData.question;
 
   try{
     const submitResponseQuery = "INSERT INTO responses (pastQuestion, side, response) VALUES ($1, $2, $3)";
-    await pool.query(submitQuestionQuery, [questionData, sideSelected, response]);
+    await pool.query(submitResponseQuery, [questionData, sideSelected, response]);
   }
   catch (error) {
     console.error(error);
