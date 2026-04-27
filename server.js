@@ -54,7 +54,7 @@ async function createResponsesTable() {
       pastQuestion REFERENCES questions(question),
       side TEXT CHECK (side IN ('A', 'B')),
       response TEXT NOT NULL
-    );
+    )
     `);
     console.log("Responses table ready");
   } catch (err) {
