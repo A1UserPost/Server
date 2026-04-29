@@ -53,6 +53,14 @@ async function createResponsesTable() {
     await pool.query(`
         DROP TABLE IF EXISTS responses;
     `);
+    await pool.query(`
+      CREATE TABLE responses (
+        id SERIAL PRIMARY KEY,
+        pastQuestion TEXT REFERENCES questions(question),
+        side TEXT NOT NULL,
+        response TEXT NOT NULL
+      )
+    `);
     console.log("Responses table ready");
   } catch (err) {
     console.error("Error creating responses table:", err);
@@ -61,8 +69,8 @@ async function createResponsesTable() {
 
 async function initializeTables(){
   await createUsersTable();
-  await createQuestionsTable();
   await createResponsesTable();
+  await createQuestionsTable();
 }
 
 initializeTables();
