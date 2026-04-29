@@ -35,6 +35,9 @@ async function createUsersTable() {
 async function createQuestionsTable() {
   try {
     await pool.query(`
+        DROP TABLE IF EXISTS questions;
+    `);
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS questions (
         question TEXT UNIQUE NOT NULL PRIMARY KEY
       )
