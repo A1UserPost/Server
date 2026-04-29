@@ -32,6 +32,22 @@ async function createUsersTable() {
   }
 }
 
+async function createResponsesTable() { 
+  try { 
+    await pool.query(` 
+    CREATE TABLE responses ( id SERIAL PRIMARY KEY, 
+      pastQuestion TEXT REFERENCES questions(question), 
+      side TEXT NOT NULL, 
+      response TEXT NOT NULL ) 
+    `); 
+  console.log("Responses table ready");
+  } 
+  catch (err) 
+  { 
+    console.error("Error creating responses table:", err); 
+  } 
+}
+
 async function createQuestionsTable() {
   try {
     await pool.query(`
