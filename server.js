@@ -69,6 +69,7 @@ async function createQuestionsTable() {
 async function initializeTables(){
   await createUsersTable();
   await createQuestionsTable();
+  await createResponsesTable();
 }
 
 initializeTables();
