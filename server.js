@@ -35,7 +35,8 @@ async function createUsersTable() {
 async function createResponsesTable() { 
   try { 
     await pool.query(` 
-    CREATE TABLE responses ( id SERIAL PRIMARY KEY, 
+    CREATE TABLE IF NOT EXISTS responses 
+    ( id SERIAL PRIMARY KEY, 
       pastQuestion TEXT REFERENCES questions(question), 
       side TEXT NOT NULL, 
       response TEXT NOT NULL ) 
