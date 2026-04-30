@@ -56,6 +56,7 @@ async function createQuestionsTable() {
     `);
     await pool.query(`
       CREATE TABLE IF NOT EXISTS questions (
+        id SERIAL,
         question TEXT UNIQUE NOT NULL PRIMARY KEY
       )
     `);
@@ -161,6 +162,20 @@ app.post("/response", async function(req, res) {
   catch (error) {
     console.error(error);
     res.send("Error submitting response");
+  }
+});
+
+app.get("/getLatestQuestion", async function(req, res) {
+
+  try{
+    const getLatestQuestionQuery = "SELECT * FROM questions ORDER BY id DESC LIMIT 1";
+    const latestQuestion = await pool.query(getLatestQuestionQuery);
+
+    res.send(latestQuestion.rows[0]);
+  }
+  catch (error) {
+    console.error(error);
+    res.send("Error fetching latest question");
   }
 });
 
